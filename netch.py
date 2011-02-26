@@ -13,11 +13,9 @@ import time
 from optparse import OptionParser
 from syslog import LOG_ERR, LOG_WARNING, LOG_INFO
 
-import fuse
 import libssh2
 import pylibconfig
 
-fuse.fuse_python_api = (0, 2)
 
 class FPClient:
     def __init__(self, hostname, port=22):
@@ -45,7 +43,7 @@ class FPClient:
             self.fingerprint = -1
             return
 
-class Netch(fuse.Fuse):
+class Netch():
     def __init__(self, options):
         self.options = options
         self.syslog = False
