@@ -93,7 +93,7 @@ class Netch():
             for hkey in cfg.children(hook):
                 value, valid = cfg.value(hkey)
                 if valid:
-                    self.config[hook].append(value)
+                    self.config[hook].append(os.path.expanduser(value))
 
 
         for stmt in ['host_delay', 'delay', 'delay_factor', 'delay_max']:
