@@ -21,10 +21,10 @@ fingerprints:
 );
 
 # list of commands to run when after transitioning from offline to online
-online_hook = [];
+online_hook = ["~/bin/reconnect"];
 
 # list of commands to run when after transitioning from online to offline
-offline_hook = [];
+offline_hook = ["killall ssh"];
 
 # log to syslog? if false, messages will be sent to stdout and stderr 
 syslog="false";
