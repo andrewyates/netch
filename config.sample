@@ -44,3 +44,8 @@ delay_factor="1.5";
 
 # the maximum amount of time in seconds to wait between connection checks
 delay_max="900";
+
+# keep performing connection checks when online?
+# if false, you will need to use if-down.d or similar to set connection down
+# (this can be done by sending SIGUSR1 to netch)
+check_when_online="true";

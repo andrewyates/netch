@@ -87,6 +87,12 @@ class Netch():
         else:
             self.log_info = False
 
+        cwo, cwoValid = cfg.value("check_when_online")
+        if cwoValid and cwo.lower() == "true":
+            self.check_when_online = True
+        else:
+            self.check_when_online = False
+
         # load hooks
         for hook in ['online_hook', 'offline_hook']:
             self.config[hook] = []
@@ -127,6 +133,10 @@ class Netch():
         self.parse_config_file(os.path.expanduser(self.options.config_file))
         self.current_delay = self.config["delay"]
         
+    def handle_sigusr1(self, signum, frame):
+        """ Set connection offline on SIGUSR1 """
+        self.connection_down()
+
     def handle_sigusr2(self, signum, frame):
         """ Reload config file on SIGUSR2 """
         self.reload_config()
@@ -135,9 +145,16 @@ class Netch():
         self.reload_config()
 
         while True:
+            delay = self.next_delay()
             for (host, port, fp) in self.config['fingerprints']:
                 # if we're online, only verify we're onlune using the host we found out with
                 if self.online != False:
+                    # if check_when_online in the config is false,
+                    # don't try connecting to any servers
+                    if self.check_when_online == False:
+                        time.sleep(delay)
+                        continue
+
                     ohost, oport = self.online
                     if host != ohost or port != oport:
                         continue
@@ -156,7 +173,6 @@ class Netch():
 
                 time.sleep(self.config["host_delay"])
 
-            delay = self.next_delay()
             self.log("sleeping for %s seconds " % delay, LOG_INFO)
             time.sleep(delay)
 
@@ -187,7 +203,7 @@ class Netch():
 
         # increase delay by delay_factor
         delay = self.current_delay * self.config["delay_factor"]
-        if delay <= config["delay_max"]:
+        if delay <= self.config["delay_max"]:
             self.current_delay = delay
         else:
             self.current_delay = self.config["delay_max"]
@@ -218,5 +234,6 @@ if __name__ == '__main__' :
         print fpclient.fingerprint
 
     netch = Netch(options)
+    signal.signal(signal.SIGUSR1, netch.handle_sigusr1)
     signal.signal(signal.SIGUSR2, netch.handle_sigusr2)
     netch.run()
