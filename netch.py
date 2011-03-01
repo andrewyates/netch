@@ -144,8 +144,8 @@ class Netch():
     def run(self):
         self.reload_config()
 
+        delay = self.config["delay"]
         while True:
-            delay = self.next_delay()
             for (host, port, fp) in self.config['fingerprints']:
                 # if we're online, only verify we're onlune using the host we found out with
                 if self.online != False:
@@ -175,6 +175,7 @@ class Netch():
 
             self.log("sleeping for %s seconds " % delay, LOG_INFO)
             time.sleep(delay)
+            delay = self.next_delay()
 
     def connection_up(self, host, port):
         self.current_delay = self.config["delay_max"]
