@@ -64,6 +64,7 @@ class Netch():
         self.options = options
         self.syslog = False
         self.online = False
+        self.pause = False
 
     def log(self, msg, priority):
         if self.syslog and (self.log_info or priority != LOG_INFO):
@@ -148,13 +149,19 @@ class Netch():
     def reload_config(self):
         self.parse_config_file(os.path.expanduser(self.options.config_file))
         self.current_delay = self.config["delay"]
-        
+
     def handle_sigusr1(self, signum, frame):
-        """ Set connection offline on SIGUSR1 """
+        """ Signal interface down (pause checks) """
         self.connection_down()
+        self.pause = True
 
     def handle_sigusr2(self, signum, frame):
-        """ Reload config file on SIGUSR2 """
+        """ Signal interface up (reset connection status & resume checks) """
+        self.connection_down()
+        self.pause = False
+        
+    def handle_sighup(self, signum, frame):
+        """ Reload config file on SIGHUP """
         self.reload_config()
 
     def run(self):
@@ -162,8 +169,12 @@ class Netch():
 
         delay = self.config["delay"]
         while True:
+            if self.pause:
+                time.sleep(self.config["delay_max"])
+                continue
+
             for (host, port, fp) in self.config['fingerprints']:
-                # if we're online, only verify we're onlune using the host we found out with
+                # if we're online, only verify we're online using the host we found out with
                 if self.online != False:
                     # if check_when_online in the config is false,
                     # don't try connecting to any servers
@@ -195,15 +206,17 @@ class Netch():
 
     def connection_up(self, host, port):
         self.current_delay = self.config["delay_max"]
+        if self.online is False:
+            for hook in self.config["online_hook"]: # run hooks if we're transitioning
+                self.run_hook(hook)
         self.online = (host, port)
-        for hook in self.config["online_hook"]:
-            self.run_hook(hook)
 
     def connection_down(self):
         self.current_delay = self.config["delay"]
+        if self.online is not False: # run hooks if we're transitioning
+            for hook in self.config["offline_hook"]:
+                self.run_hook(hook)
         self.online = False
-        for hook in self.config["offline_hook"]:
-            self.run_hook(hook)
 
     def run_hook(self, command):
         args = ["/bin/sh", "-c"]
@@ -253,4 +266,5 @@ if __name__ == '__main__' :
     netch = Netch(options)
     signal.signal(signal.SIGUSR1, netch.handle_sigusr1)
     signal.signal(signal.SIGUSR2, netch.handle_sigusr2)
+    signal.signal(signal.SIGHUP, netch.handle_sighup)
     netch.run()
