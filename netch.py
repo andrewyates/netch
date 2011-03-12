@@ -92,10 +92,10 @@ class Netch():
         # log to syslog?
         sv, svValid = cfg.value("syslog")
         if svValid and sv.lower() == "true":
-            self.config['syslog'] = True
+            self.syslog = True
             syslog.openlog("netch", syslog.LOG_PID, syslog.LOG_DAEMON)
         else:
-            self.config['syslog'] = False
+            self.syslog = False
 
         # log info?
         info, infoValid = cfg.value("log_info")
@@ -219,10 +219,10 @@ class Netch():
         self.online = False
 
     def run_hook(self, command):
-        args = ["/bin/sh", "-c"]
-        args.extend(shlex.split('"'+command+'"'))
-        ret = subprocess.call(args)
-        if ret != 0:
+        p = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        self.log(p.communicate()[0], LOG_INFO)
+
+        if p.returncode != 0:
             self.log("hook '%s' returned with non-zero exit code %s" % (command,ret), LOG_ERR)
 
     def next_delay(self):
