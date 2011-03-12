@@ -6,6 +6,14 @@ netch checks the internet connection by attempting to SSH to a known host and ve
 
 \* limited to SHA1 or MD5 by libssh2
 
+Requirements
+============
+- libconfig (on Ubuntu systems install the libconfig++8-dev package)
+- Python
+- python-libconfig (currently at http://github.com/azeey/python-libconfig)
+- libssh2 (libssh2-1 on Ubuntu)
+- pylibssh2 (python-libssh2 on Ubuntu)
+
 Setup
 =====
 - mkdir ~/.config/netch
