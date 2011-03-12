@@ -5,9 +5,16 @@ netch is a utility for monitoring a system's internet connection status (not jus
 netch checks the internet connection by attempting to SSH to a known host and verifying that the
 host key received matches a known-good value. It is best used on Debian-based systems in conjunction with scripts in if-down.d and if-up.d. In this scenario, the up and down scripts notify netch when the interface is up in order to minimize unnecessary checks. 
 
+Setup
+=====
+- mkdir ~/.config/netch
+- mkdir ~/.config/netch/hooks
+- copy config.sample to ~/.config/netch/config
+- edit ~/.config/netch/config and define at least one host
+
 Configuration
 =============
-See config.sample for a full list of config options.
+See config.sample for a full list of config options. At a minimum you will need to define one host (as shown in config.sample) and set the following options:
 
 - check_when_online: whether or not to repeatedly checking the connection status when online
 - online_hook: list of commands to run after coming online
