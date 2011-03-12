@@ -1,6 +1,6 @@
 netch
 ======
-netch is a utility for monitoring a system's internet connection status
+netch is a utility for monitoring a system's internet connection status (not just whether or not it has an IP)
 
 netch checks the internet connection by attempting to SSH to a known host and verifying that the
 host key received matches a known-good value. It is best used on Debian-based systems in conjunction with scripts in if-down.d and if-up.d. In this scenario, the up and down scripts notify netch when the interface is up in order to minimize unnecessary checks. 
