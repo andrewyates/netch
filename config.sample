@@ -36,7 +36,7 @@ log_info="true";
 # one connection check consists of one host check for each host defined
 host_delay="5";
 
-# time to way between connection checks when an interface is up
+# initial time to way between connection checks
 delay="20";
 
 # multiply connection check delay by this every loop
